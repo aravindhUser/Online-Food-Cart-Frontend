@@ -1,0 +1,215 @@
+<div class="owner-dashboard">
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="header-left">
+                <a [routerLink]="['/']" class="back-home">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </a>
+                <div class="logo">
+                    <i class="fas fa-utensils"></i> QuickBite Owner
+                </div>
+            </div>
+            
+            <div class="header-right">
+                <div class="profile-section" (click)="viewProfile()">
+                    <div class="profile-icon">
+                        {{ getInitials() }}
+                    </div>
+                    <div class="profile-info">
+                        <div class="profile-name">{{ ownerName }}</div>
+                        <div class="profile-role">Restaurant Owner</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="dashboard-main">
+        <!-- Welcome Section -->
+        <section class="welcome-section">
+            <h1>Welcome back, {{ ownerProfile.firstName }}!</h1>
+            <p>Manage your restaurants and track your business performance</p>
+        </section>
+
+        <!-- Stats Cards -->
+        <section class="stats-cards">
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ff6b6b, #ff8e8e);">
+                    <i class="fas fa-store"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Total Restaurants</h3>
+                    <div class="stat-value">{{ restaurants.length }}</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #4ecdc4, #44a7a0);">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Open Now</h3>
+                    <div class="stat-value">{{ openRestaurantsCount }}</div>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon" style="background: linear-gradient(135deg, #ffd166, #ffc145);">
+                    <i class="fas fa-city"></i>
+                </div>
+                <div class="stat-info">
+                    <h3>Cities</h3>
+                    <div class="stat-value">{{ citiesCount }}</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Restaurant Actions -->
+        <section class="restaurant-actions">
+            <div class="search-box">
+                <i class="fas fa-search search-icon"></i>
+                <input 
+                    type="text" 
+                    placeholder="Search restaurants by name, city, or area..."
+                    [(ngModel)]="searchQuery"
+                    (input)="filterRestaurants()">
+            </div>
+            
+            <button class="add-restaurant-btn" (click)="addRestaurant()">
+                <i class="fas fa-plus"></i> Add New Restaurant
+            </button>
+        </section>
+
+        <!-- Restaurants Grid -->
+        <section class="restaurants-section">
+            <!-- Loading State -->
+            <div *ngIf="isLoading" class="loading-state">
+                <i class="fas fa-spinner fa-spin fa-3x"></i>
+                <p>Loading your restaurants...</p>
+            </div>
+
+            <!-- Error State -->
+            <div *ngIf="!isLoading && restaurants.length === 0 && filteredRestaurants.length === 0" class="error-state">
+                <div class="error-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3>No Restaurants Available</h3>
+                <p>You haven't added any restaurants yet. Start by adding your first restaurant!</p>
+                <button class="add-restaurant-btn" (click)="addRestaurant()">
+                    <i class="fas fa-plus"></i> Add Your First Restaurant
+                </button>
+            </div>
+
+            <!-- Empty Search Results -->
+            <div *ngIf="!isLoading && restaurants.length > 0 && filteredRestaurants.length === 0" class="empty-state">
+                <div class="empty-icon">
+                    <i class="fas fa-search"></i>
+                </div>
+                <h3>No Restaurants Found</h3>
+                <p>No restaurants match your search "{{ searchQuery }}". Try a different search term.</p>
+                <button class="add-restaurant-btn" (click)="searchQuery = ''; filterRestaurants()">
+                    <i class="fas fa-times"></i> Clear Search
+                </button>
+            </div>
+
+            <!-- Restaurants Grid -->
+            <div class="restaurants-grid" *ngIf="!isLoading && filteredRestaurants.length > 0">
+                <div class="restaurant-card" 
+                     [class.open]="restaurant.open" 
+                     [class.closed]="!restaurant.open"
+                     *ngFor="let restaurant of filteredRestaurants">
+                    
+                    <!-- Status Indicator Ribbon -->
+                    <!-- <div class="status-indicator" *ngIf="restaurant.open" style="position: absolute; top: 15px; right: 15px;">
+                        <span class="status-dot open"></span>
+
+                        <span class="status-badge open">Open Now</span>
+                    </div> -->
+                    
+                    <div class="restaurant-header">
+                        <div>
+                            <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+                            <div class="restaurant-location">
+                                <i class="fas fa-map-marker-alt"></i>
+                                <span>{{ restaurant.area }}, {{ restaurant.city }}</span>
+                            </div>
+                        </div>
+
+                        <div class="restaurant-delete">
+                            <button (click)="deleteRestaurant(restaurant)">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+
+                        <div class="restaurant-status">
+                            <label class="status-toggle">
+                                <input type="checkbox" 
+                                       [checked]="restaurant.open"
+                                       [disabled]="isUpdatingStatus[restaurant.restaurantId!]"
+                                       (change)="toggleRestaurantStatus(restaurant)">
+                                <span class="status-slider"></span>
+                            </label>
+                            <span class="status-text" [class.open]="restaurant.open" [class.closed]="!restaurant.open">
+                                {{ restaurant.open ? 'Open' : 'Closed' }}
+                                <i *ngIf="isUpdatingStatus[restaurant.restaurantId!]" 
+                                   class="fas fa-spinner fa-spin" 
+                                   style="margin-left: 5px;"></i>
+                            </span>
+                        </div>
+                    </div>
+                    
+                    <div class="restaurant-body">
+                        <div class="restaurant-info">
+                            <div class="info-item">
+                                <i class="fas fa-city"></i>
+                                <span class="info-label">City:</span>
+                                <span class="info-value">{{ restaurant.city }}</span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <i class="fas fa-map-pin"></i>
+                                <span class="info-label">Area:</span>
+                                <span class="info-value">{{ restaurant.area }}</span>
+                            </div>
+                            
+                            <div class="info-item">
+                                <i class="fas fa-clock"></i>
+                                <span class="info-label">Status:</span>
+                                <span class="info-value" [style.color]="restaurant.open ? '#4ecdc4' : '#ff6b6b'">
+                                    <i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i>
+                                    {{ restaurant.open ? 'Currently Open for Orders' : 'Currently Closed' }}
+                                </span>
+                            </div>
+                            
+                            <div class="info-item" *ngIf="restaurant.createdAt">
+                                <i class="fas fa-calendar"></i>
+                                <span class="info-label">Added:</span>
+                                <span class="info-value">{{ formatDate(restaurant.createdAt) }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="restaurant-actions-footer">
+                        <button class="action-btn view-btn" (click)="viewRestaurant(restaurant)">
+                            <i class="fas fa-eye"></i> View Details
+                        </button>
+                        <button class="action-btn menu-btn" (click)="manageMenu(restaurant)">
+                            <i class="fas fa-utensils"></i> Manage Menu
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Notification -->
+    <div class="notification" *ngIf="notification.show" 
+         [class.success]="notification.type === 'success'" 
+         [class.error]="notification.type === 'error'">
+        <i class="fas" [class.fa-check-circle]="notification.type === 'success'" 
+           [class.fa-exclamation-circle]="notification.type === 'error'"></i>
+        {{ notification.message }}
+    </div>
+</div>

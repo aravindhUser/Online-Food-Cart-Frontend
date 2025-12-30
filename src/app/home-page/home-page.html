@@ -1,0 +1,141 @@
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container hero-content">
+        <div class="logo">
+            <i class="fas fa-utensils"></i>QuickBite
+        </div>
+        
+        <p class="tagline">
+            Your one-stop solution for <span class="highlight">food ordering</span> and 
+            <span class="highlight">restaurant management</span>. 
+            Whether you're craving a delicious meal or managing your restaurant, we've got you covered.
+        </p>
+        
+        <div class="user-selection">
+            <!-- Customer Card -->
+            <div class="user-card customer-card">
+                <div class="user-icon customer-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <h2 class="user-title">I'm a Customer</h2>
+                <p class="user-description">
+                    Browse through hundreds of restaurants, discover delicious meals, 
+                    and get your food delivered right to your doorstep. Order now and satisfy your cravings!
+                </p>
+                <a [routerLink]="['/restaurants']" class="action-btn customer-btn">
+                    <i class="fas fa-utensils"></i> View Restaurants & Menu
+                </a>
+            </div>
+            
+            <!-- Restaurant Owner Card -->
+            <div class="user-card owner-card">
+                <div class="user-icon owner-icon">
+                    <i class="fas fa-user-tie"></i>
+                </div>
+                <h2 class="user-title">I'm a Restaurant Owner</h2>
+                <p class="user-description">
+                    Manage your restaurant seamlessly. Update your menu, track orders, 
+                    analyze sales, and grow your business with our powerful management tools.
+                </p>
+                <a [routerLink]="['/login']" class="action-btn owner-btn">
+                    <i class="fas fa-sign-in-alt"></i> Restaurant Owner Login
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="container">
+        <h2 class="section-title">Why Choose QuickBite?</h2>
+        
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <h3 class="feature-title">Fast Delivery</h3>
+                <p class="feature-description">
+                    Get your food delivered in under 30 minutes with our optimized delivery network.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3 class="feature-title">Safe & Secure</h3>
+                <p class="feature-description">
+                    Your payments and data are protected with bank-level security encryption.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-star"></i>
+                </div>
+                <h3 class="feature-title">Quality Restaurants</h3>
+                <p class="feature-description">
+                    We partner with the best local restaurants that maintain high quality standards.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3 class="feature-title">Business Insights</h3>
+                <p class="feature-description">
+                    Restaurant owners get detailed analytics to help grow their business.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-mobile-alt"></i>
+                </div>
+                <h3 class="feature-title">Easy to Use</h3>
+                <p class="feature-description">
+                    Simple and intuitive interface for both customers and restaurant owners.
+                </p>
+            </div>
+            
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <h3 class="feature-title">24/7 Support</h3>
+                <p class="feature-description">
+                    Our customer support team is available round the clock to assist you.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Footer -->
+<footer>
+    <div class="container">
+        <div class="footer-logo">
+            <i class="fas fa-utensils"></i>QuickBite
+        </div>
+        
+        <p class="footer-tagline">
+            Connecting food lovers with great local restaurants and providing powerful tools for restaurant owners to thrive.
+        </p>
+        
+        <div class="footer-links">
+            <a href="#" class="footer-link">About Us</a>
+            <a href="#" class="footer-link">Contact</a>
+            <a href="#" class="footer-link">Privacy Policy</a>
+            <a href="#" class="footer-link">Terms of Service</a>
+            <a href="#" class="footer-link">Careers</a>
+            <a href="#" class="footer-link">Blog</a>
+        </div>
+        
+        <p class="copyright">
+            &copy; {{ currentYear }} QuickBite. All rights reserved.
+        </p>
+    </div>
+</footer>

@@ -1,0 +1,177 @@
+<!-- Header -->
+<header class="header">
+  <div class="container header-content">
+    <div class="logo">
+      <i class="fas fa-utensils"></i> Quick<span>Bite</span>
+    </div>
+    
+    <div class="search-container">
+      <input 
+        type="text" 
+        class="search-box" 
+        [(ngModel)]="currentSearch"
+        (input)="applySearch()"
+        placeholder="Search for restaurants..."
+      />
+      <i class="fas fa-search search-icon"></i>
+    </div>
+    
+    <div class="user-actions">
+      <button class="sign-in-btn">
+        <i class="fas fa-user"></i> Sign In
+      </button>
+    </div>
+  </div>
+</header>
+
+<!-- Main Content -->
+<div class="container main-content">
+  <!-- Filters Sidebar -->
+  <aside class="filters-sidebar">
+    <h3><i class="fas fa-filter"></i> Filters</h3>
+    
+    <div class="filter-group">
+      <div class="filter-title">Categories</div>
+      <div class="filter-options">
+        <div 
+          class="filter-option" 
+          [class.active]="currentFilter === 'all'"
+          (click)="applyFilter('all')"
+        >
+          <i class="fas fa-utensils"></i>
+          <span>All Restaurants</span>
+        </div>
+        <div 
+          class="filter-option" 
+          [class.active]="currentFilter === 'new york'"
+          (click)="applyFilter('new york')"
+        >
+          <i class="fas fa-city"></i>
+          <span>New York</span>
+        </div>
+        <div 
+          class="filter-option" 
+          [class.active]="currentFilter === 'chicago'"
+          (click)="applyFilter('chicago')"
+        >
+          <i class="fas fa-building"></i>
+          <span>Chicago</span>
+        </div>
+        <div 
+          class="filter-option" 
+          [class.active]="currentFilter === 'los angeles'"
+          (click)="applyFilter('los angeles')"
+        >
+          <i class="fas fa-sun"></i>
+          <span>Los Angeles</span>
+        </div>
+      </div>
+    </div>
+    
+    <div class="filter-group">
+      <div class="filter-title">Status</div>
+      <div class="filter-options">
+        <div 
+          class="filter-option" 
+          (click)="applyFilter('open')"
+        >
+          <i class="fas fa-door-open"></i>
+          <span>Open Now</span>
+        </div>
+        <div 
+          class="filter-option" 
+          (click)="applyFilter('closed')"
+        >
+          <i class="fas fa-door-closed"></i>
+          <span>Closed</span>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- Restaurant Listings -->
+  <main class="restaurant-listings">
+    <div class="search-results-header">
+      <h2 class="section-title">
+        {{ currentSearch ? 'Search Results' : 'Available Restaurants' }}
+      </h2>
+      <div class="result-count">{{ getResultCount() }}</div>
+      <div 
+        class="clear-search" 
+        *ngIf="currentSearch"
+        (click)="clearSearch()"
+      >
+        <i class="fas fa-times"></i> Clear Search
+      </div>
+    </div>
+    
+    <!-- Loading State -->
+    <div class="loading-state" *ngIf="isLoading">
+      <div class="spinner"></div>
+      <p>Loading restaurants...</p>
+    </div>
+    
+    <!-- Error State -->
+    <div class="error-state" *ngIf="errorMessage && !isLoading">
+      <i class="fas fa-exclamation-triangle"></i>
+      <p>{{ errorMessage }}</p>
+      <button class="retry-btn" (click)="loadRestaurants()">
+        <i class="fas fa-redo"></i> Try Again
+      </button>
+    </div>
+    
+    <!-- Empty State -->
+    <div 
+      class="empty-state" 
+      *ngIf="!isLoading && !errorMessage && filteredRestaurants.length === 0"
+    >
+      <i class="fas fa-search"></i>
+      <p>No restaurants found. Try a different search.</p>
+    </div>
+    
+    <!-- Restaurant Grid -->
+    <div class="restaurant-grid" *ngIf="!isLoading && !errorMessage">
+      <div 
+        class="restaurant-card" 
+        *ngFor="let restaurant of filteredRestaurants"
+        [class.closed]="!restaurant.open"
+      >
+        <!-- Closed Banner -->
+        <div class="closed-banner" *ngIf="!restaurant.open">
+          <i class="fas fa-door-closed"></i> Closed
+        </div>
+        
+        <div class="restaurant-image-placeholder">
+          <i class="fas fa-store"></i>
+        </div>
+        
+        <div class="restaurant-info">
+          <h3 class="restaurant-name">{{ restaurant.name }}</h3>
+          <div class="restaurant-location">
+            <i class="fas fa-map-marker-alt"></i>
+            {{ restaurant.area }}, {{ restaurant.city }}
+          </div>
+          
+          <div class="restaurant-status" [class.open]="restaurant.open">
+            <i 
+              class="fas" 
+              [class.fa-door-open]="restaurant.open" 
+              [class.fa-door-closed]="!restaurant.open"
+            ></i>
+            {{ restaurant.open ? 'Open Now' : 'Currently Closed' }}
+          </div>
+          
+          <div class="restaurant-actions">
+            <button 
+              class="view-menu-btn" 
+              [disabled]="!restaurant.open"
+              (click)="viewMenu(restaurant.restaurantId)"
+            >
+              <i class="fas fa-utensils"></i> View Menu
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

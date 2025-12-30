@@ -1,0 +1,68 @@
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-user-tie"></i>
+            </div>
+            <div class="login-logo">
+                <i class="fas fa-utensils"></i>QuickBite
+            </div>
+            <h2>Restaurant Owner Login</h2>
+            <p>Access your restaurant dashboard</p>
+        </div>
+        
+        <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()" class="login-form">
+            <div class="form-group">
+                <label for="email">Email Address</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    formControlName="userEmail"
+                    placeholder="owner@restaurant.com"
+                    [class.error]="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                <div class="error-message" *ngIf="loginForm.get('email')?.invalid && loginForm.get('email')?.touched">
+                    Please enter a valid email address
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input 
+                    type="password" 
+                    id="password" 
+                    formControlName="userPassword"
+                    placeholder="Enter your password"
+                    [class.error]="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                <div class="error-message" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+                    Password must be at least 6 characters
+                </div>
+            </div>
+            
+            <button type="submit" class="submit-btn" [disabled]="loginForm.invalid || isLoggingIn">
+                <i class="fas" [class.fa-spinner]="isLoggingIn" [class.fa-spin]="isLoggingIn" [class.fa-sign-in-alt]="!isLoggingIn"></i> 
+                {{ isLoggingIn ? 'Logging in...' : 'Login to Dashboard' }}
+            </button>
+            
+            <div class="forgot-password">
+                <a href="#" (click)="onForgotPassword($event)">Forgot Password?</a>
+            </div>
+
+            <div class="register-link">
+                <p>Don't have an account? <a [routerLink]="['/register-owner']">Register Here</a></p>
+            </div>
+
+            <div class="back-home">
+                <a [routerLink]="['/']">
+                    <i class="fas fa-arrow-left"></i> Back to Home
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Notification -->
+<div class="notification" *ngIf="notification.show" [class.success]="notification.type === 'success'" [class.error]="notification.type === 'error'">
+    <i class="fas" [class.fa-check-circle]="notification.type === 'success'" [class.fa-exclamation-circle]="notification.type === 'error'"></i>
+    {{ notification.message }}
+</div>

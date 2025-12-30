@@ -1,0 +1,131 @@
+<div class="modal-overlay" (click)="onClose()">
+  <div class="add-restaurant-modal" (click)="$event.stopPropagation()">
+    <!-- Modal Header -->
+    <div class="modal-header">
+      <h2 class="modal-title">
+        <i class="fas fa-plus-circle"></i> Add New Restaurant
+      </h2>
+      <button class="close-btn" (click)="onClose()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <!-- Error Message -->
+      <div class="error-message" *ngIf="errorMessage">
+        <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+      </div>
+
+      <!-- Success Message -->
+      <div class="success-message" *ngIf="successMessage">
+        <i class="fas fa-check-circle"></i> {{ successMessage }}
+      </div>
+
+      <!-- Form -->
+      <form (ngSubmit)="onSubmit()" *ngIf="!successMessage">
+        <!-- Restaurant Name -->
+        <div class="form-group">
+          <label for="name">
+            <i class="fas fa-store"></i> Restaurant Name
+          </label>
+          <input
+            type="text"
+            id="name"
+            [(ngModel)]="name"
+            name="name"
+            placeholder="Enter restaurant name"
+            required
+            [disabled]="isLoading"
+          />
+        </div>
+
+        <!-- City -->
+        <div class="form-group">
+          <label for="city">
+            <i class="fas fa-city"></i> City
+          </label>
+          <input
+            type="text"
+            id="city"
+            [(ngModel)]="city"
+            name="city"
+            placeholder="Enter city"
+            required
+            [disabled]="isLoading"
+          />
+        </div>
+
+        <!-- Area -->
+        <div class="form-group">
+          <label for="area">
+            <i class="fas fa-map-marker-alt"></i> Area/Location
+          </label>
+          <input
+            type="text"
+            id="area"
+            [(ngModel)]="area"
+            name="area"
+            placeholder="Enter area or location"
+            required
+            [disabled]="isLoading"
+          />
+        </div>
+
+        <!-- Open Status -->
+        <div class="form-group status-group">
+          <label>
+            <i class="fas fa-door-open"></i> Restaurant Status
+          </label>
+          <div class="status-options">
+            <label class="status-option">
+              <input
+                type="radio"
+                [(ngModel)]="open"
+                name="openStatus"
+                [value]="true"
+                [disabled]="isLoading"
+              />
+              <span class="status-label open">
+                <i class="fas fa-door-open"></i> Open Now
+              </span>
+            </label>
+            <label class="status-option">
+              <input
+                type="radio"
+                [(ngModel)]="open"
+                name="openStatus"
+                [value]="false"
+                [disabled]="isLoading"
+              />
+              <span class="status-label closed">
+                <i class="fas fa-door-closed"></i> Currently Closed
+              </span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Form Actions -->
+        <div class="form-actions">
+          <button
+            type="button"
+            class="cancel-btn"
+            (click)="onClose()"
+            [disabled]="isLoading"
+          >
+            <i class="fas fa-times"></i> Cancel
+          </button>
+          <button
+            type="submit"
+            class="submit-btn"
+            [disabled]="isLoading"
+          >
+            <i class="fas fa-plus" *ngIf="!isLoading"></i>
+            <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
+            {{ isLoading ? 'Adding...' : 'Add Restaurant' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
