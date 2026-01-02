@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, OnInit, OnDestroy } from '@angular/core';
+import { Component, OnInit, OnDestroy, ChangeDetectorRef } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule, ActivatedRoute } from '@angular/router';
 import { Subscription, timer } from 'rxjs';
@@ -47,7 +47,8 @@ export class LoginPage implements OnInit, OnDestroy {
     private router: Router,
     private authService: RegistrationService,
     private OwnerService: OwnerService, 
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
       userEmail: ['', [Validators.required, Validators.email]],
@@ -104,7 +105,14 @@ export class LoginPage implements OnInit, OnDestroy {
       if (decoded) {
         console.log('Decoded JWT payload:', decoded);
       }
-      this.router.navigate(['/owner-page']);
+      if (this.userType === 'owner') {
+        this.router.navigate(['/owner-page']);
+        this.cdr.markForCheck();
+      }
+      else {
+        this.router.navigate(['/user-page']);
+      }
+      // this.router.navigate(['/owner-page']);
       this.isLoggingIn = false;
     },
     error: (err) => {

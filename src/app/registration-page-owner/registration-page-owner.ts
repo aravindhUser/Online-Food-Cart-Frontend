@@ -57,12 +57,18 @@ export class RegistrationPageOwner implements OnInit {
     }, { validators: this.passwordMatchValidator });
   }
   
-  ngOnInit(): void {
-    // Monitor password changes for strength indicator
-  }
-  
+ngOnInit(): void {
+  // Monitor password changes for strength indicator
+  this.f['userPassword'].valueChanges
+    .pipe(
+      distinctUntilChanged() // only fire when value actually changes
+    )
+    .subscribe(value => {
+      this.checkPasswordStrength(value); // immediate feedback
+    });
+}
 
-  
+
   get f() {
     return this.registrationForm.controls;
   }

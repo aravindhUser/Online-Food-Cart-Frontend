@@ -15,6 +15,6 @@ export const routes: Routes = [
     { path: 'register-owner',component: RegistrationPageOwner },
     { path: 'register-user', component: RegistrationPageUser },
     { path: 'owner-page',component: OwnerHomePage },
-    { path: 'owner-page/addRestaurant',component: AddNewRestaurant },
     {path:'owner/profile',component:OwnerProfilePage},
+    { path: 'owner-page/addRestaurant',component: AddNewRestaurant },
 ];

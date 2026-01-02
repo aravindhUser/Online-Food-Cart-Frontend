@@ -1,0 +1,286 @@
+<div class="menu-management">
+  <!-- Header Section -->
+  <div class="management-header">
+    <h2 class="page-title">
+      <i class="fas fa-utensils"></i> Menu Management
+    </h2>
+    
+    <!-- Search Bar -->
+    <div class="search-container">
+      <input
+        type="text"
+        class="search-input"
+        [(ngModel)]="searchTerm"
+        (keyup.enter)="searchMenuItems()"
+        placeholder="Search menu items..."
+        [disabled]="isLoading"
+      />
+      <button 
+        class="search-btn"
+        (click)="searchMenuItems()"
+        [disabled]="isLoading"
+        title="Search"
+      >
+        <i class="fas fa-search"></i>
+      </button>
+      <button 
+        *ngIf="searchTerm"
+        class="clear-search-btn"
+        (click)="clearSearch()"
+        [disabled]="isLoading"
+        title="Clear search"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Add Menu Item Button -->
+    <button 
+      class="add-item-btn"
+      (click)="isAddingItem = true"
+      *ngIf="!isAddingItem"
+      [disabled]="isLoading"
+    >
+      <i class="fas fa-plus"></i> Add Menu Item
+    </button>
+  </div>
+
+  <!-- Messages -->
+  <div class="message-container">
+    <!-- Error Message -->
+    <div class="error-message" *ngIf="errorMessage">
+      <i class="fas fa-exclamation-circle"></i> {{ errorMessage }}
+    </div>
+    
+    <!-- Success Message -->
+    <div class="success-message" *ngIf="successMessage">
+      <i class="fas fa-check-circle"></i> {{ successMessage }}
+    </div>
+  </div>
+
+  <!-- Add Menu Item Form -->
+  <div class="add-item-form" *ngIf="isAddingItem">
+    <div class="form-header">
+      <h3><i class="fas fa-plus-circle"></i> Add New Menu Item</h3>
+      <button class="close-form-btn" (click)="isAddingItem = false" [disabled]="isLoading">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <div class="form-body">
+      <!-- Item Name -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="itemName">
+            <i class="fas fa-tag"></i> Item Name *
+          </label>
+          <input
+            type="text"
+            id="itemName"
+            [(ngModel)]="newItem.itemName"
+            placeholder="Enter item name"
+            required
+            [disabled]="isLoading"
+          />
+        </div>
+        
+        <div class="form-group">
+          <label for="price">
+            <i class="fas fa-dollar-sign"></i> Price *
+          </label>
+          <input
+            type="number"
+            id="price"
+            [(ngModel)]="newItem.price"
+            placeholder="0.00"
+            step="0.01"
+            min="0"
+            required
+            [disabled]="isLoading"
+          />
+        </div>
+      </div>
+      
+      <!-- Category and Quantity -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="category">
+            <i class="fas fa-list"></i> Category *
+          </label>
+          <select
+            id="category"
+            [(ngModel)]="newItem.category"
+            [disabled]="isLoading"
+          >
+            <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+          </select>
+        </div>
+        
+        <div class="form-group">
+          <label for="quantity">
+            <i class="fas fa-box"></i> Initial Quantity *
+          </label>
+          <input
+            type="number"
+            id="quantity"
+            [(ngModel)]="newItem.estimatedItemsDelivered"
+            placeholder="10"
+            min="0"
+            required
+            [disabled]="isLoading"
+          />
+        </div>
+      </div>
+      
+      <!-- Availability -->
+      <div class="form-group availability-group">
+        <label class="availability-label">
+          <input
+            type="checkbox"
+            [(ngModel)]="newItem.available"
+            [disabled]="isLoading"
+          />
+          <span class="toggle-switch">
+            <span class="toggle-slider"></span>
+          </span>
+          <span class="availability-text">
+            <i class="fas fa-check-circle"></i> Available for orders
+          </span>
+        </label>
+      </div>
+      
+      <!-- Form Actions -->
+      <div class="form-actions">
+        <button
+          type="button"
+          class="cancel-btn"
+          (click)="isAddingItem = false"
+          [disabled]="isLoading"
+        >
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <button
+          type="button"
+          class="submit-btn"
+          (click)="addMenuItem()"
+          [disabled]="isLoading"
+        >
+          <i class="fas fa-plus" *ngIf="!isLoading"></i>
+          <i class="fas fa-spinner fa-spin" *ngIf="isLoading"></i>
+          {{ isLoading ? 'Adding...' : 'Add Item' }}
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading Overlay -->
+  <div class="loading-overlay" *ngIf="isLoading && !isAddingItem">
+    <div class="spinner"></div>
+    <p>Loading...</p>
+  </div>
+
+  <!-- Menu Items Grid -->
+  <div class="menu-items-grid" *ngIf="!isLoading">
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="filteredMenuItems.length === 0 && !isAddingItem">
+      <i class="fas fa-utensils"></i>
+      <p>No menu items found. Add your first menu item!</p>
+      <button class="add-first-btn" (click)="isAddingItem = true">
+        <i class="fas fa-plus"></i> Add Menu Item
+      </button>
+    </div>
+    
+    <!-- Menu Items -->
+    <div class="menu-item-card" *ngFor="let item of filteredMenuItems">
+      <!-- Item Header -->
+      <div class="item-header">
+        <div class="item-title">
+          <h3 class="item-name">{{ item.itemName }}</h3>
+          <span class="item-category">{{ item.category }}</span>
+        </div>
+        <button 
+          class="delete-btn"
+          (click)="deleteMenuItem(item.itemId)"
+          [disabled]="isLoading"
+          title="Delete item"
+        >
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
+      
+      <!-- Item Details -->
+      <div class="item-details">
+        <div class="detail-row">
+          <span class="detail-label"><i class="fas-fa-indian-rupee-sign"></i> Price:</span>
+          <span class="detail-value">{{ item.price | currency:'INR':'symbol':'1.0-0' }}</span>
+        </div>
+        
+        <div class="detail-row">
+          <span class="detail-label"><i class="fas fa-box"></i> Quantity:</span>
+          <div class="quantity-display">
+            <!-- Display Mode -->
+            <div *ngIf="!item.editing" class="quantity-view">
+              <span class="quantity-value">{{ item.estimatedItemsDelivered }}</span>
+              <button 
+                class="edit-qty-btn"
+                (click)="startEditingQuantity(item)"
+                [disabled]="isLoading"
+                title="Edit quantity"
+              >
+                <i class="fas fa-edit"></i> Edit
+              </button>
+            </div>
+            
+            <!-- Editing Mode -->
+            <div *ngIf="item.editing" class="quantity-edit">
+              <input
+                type="number"
+                [(ngModel)]="item.tempQuantity"
+                min="0"
+                class="qty-edit-input"
+                (keyup.enter)="updateItemQuantity(item)"
+                [disabled]="isLoading"
+              />
+              <div class="edit-actions">
+                <button 
+                  class="save-edit-btn"
+                  (click)="updateItemQuantity(item)"
+                  [disabled]="isLoading"
+                  title="Save"
+                >
+                  <i class="fas fa-check"></i>
+                </button>
+                <button 
+                  class="cancel-edit-btn"
+                  (click)="cancelEditing(item)"
+                  [disabled]="isLoading"
+                  title="Cancel"
+                >
+                  <i class="fas fa-times"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Availability Toggle -->
+        <div class="detail-row">
+          <span class="detail-label"><i class="fas fa-toggle-on"></i> Status:</span>
+          <label class="availability-toggle">
+            <input
+              type="checkbox"
+              [checked]="item.available"
+              (change)="toggleAvailability(item)"
+              [disabled]="isLoading"
+              class="toggle-input"
+            />
+            <span class="toggle-slider"></span>
+            <span class="toggle-text">
+              {{ item.available ? 'Available' : 'Unavailable' }}
+            </span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
