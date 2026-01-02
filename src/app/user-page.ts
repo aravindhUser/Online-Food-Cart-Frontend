@@ -30,7 +30,7 @@ export class RestaurantService {
   constructor(private http: HttpClient) { }
 
   getRestaurants(): Observable<Restaurant[]> {
-    return this.http.get<Restaurant[]>(this.apiUrl);
+    return this.http.get<Restaurant[]>(`${this.apiUrl}/get-all-available`)
   }
 
 

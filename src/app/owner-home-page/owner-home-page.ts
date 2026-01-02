@@ -72,10 +72,10 @@ export class OwnerHomePage implements OnInit , OnDestroy {
     // Get owner ID from authentication service in real app
     const storedOwnerId = localStorage.getItem('ownerId');
     if (storedOwnerId) {
-      this.ownerId = parseInt(storedOwnerId, 10);
+      this.ownerId = parseInt(storedOwnerId, 1);
     }
     
-    this.ownerService.getOwnerProfile(this.ownerId).subscribe({
+    this.ownerService.getOwnerProfile(2).subscribe({
       next: (profile) => {
         this.ownerProfile = profile;
         localStorage.setItem('ownerName', `${profile.firstName} ${profile.lastName}`);
@@ -107,7 +107,7 @@ export class OwnerHomePage implements OnInit , OnDestroy {
         this.isLoading = false;
         console.log('Restaurants loaded:', restaurants);
         this.cdr.markForCheck();
-        this.showNotification('Restaurants loaded successfully', 'success');
+        // this.showNotification('Restaurants loaded successfully', 'success');
       },
       error: (error) => {
         console.error('Failed to load restaurants:', error);
