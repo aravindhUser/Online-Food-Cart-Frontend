@@ -104,7 +104,13 @@ export class LoginPage implements OnInit, OnDestroy {
       if (decoded) {
         console.log('Decoded JWT payload:', decoded);
       }
-      this.router.navigate(['/owner-page']);
+      if (this.userType === 'owner') {
+        this.router.navigate(['/owner-page']);
+      }
+      else {
+        this.router.navigate(['/user-page']);
+      }
+      // this.router.navigate(['/owner-page']);
       this.isLoggingIn = false;
     },
     error: (err) => {

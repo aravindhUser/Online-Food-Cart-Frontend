@@ -6,6 +6,7 @@ import { RegistrationPageOwner } from './registration-page-owner/registration-pa
 import { RegistrationPageUser } from './registration-page-user/registration-page-user';
 import { OwnerHomePage } from './owner-home-page/owner-home-page';
 import { AddNewRestaurant } from './add-new-restaurant/add-new-restaurant';
+import { OwnerMenuPage } from './owner-menu-page/owner-menu-page';
 
 export const routes: Routes = [
     { path: '', component: HomePage },
@@ -15,4 +16,5 @@ export const routes: Routes = [
     { path: 'register-user', component: RegistrationPageUser },
     { path: 'owner-page',component: OwnerHomePage },
     { path: 'owner-page/addRestaurant',component: AddNewRestaurant },
+    { path: 'owner/menu', component: OwnerMenuPage }
 ];

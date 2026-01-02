@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core';
 import { Restaurant, RestaurantService } from '../user-page';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-// import { Restaurant, RestaurantService } from './restaurant.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-all-restaurants',
@@ -20,7 +20,7 @@ export class AllRestaurants implements OnInit {
   isLoading: boolean = true;
   errorMessage: string = '';
 
-  constructor(private restaurantService: RestaurantService) { }
+  constructor(private restaurantService: RestaurantService,private route:Router) { }
 
   ngOnInit(): void {
     this.loadRestaurants();
@@ -84,5 +84,11 @@ export class AllRestaurants implements OnInit {
   viewMenu(restaurantId: number): void {
     // For demo purposes, show a notification
     console.log(`Navigating to menu for restaurant ID: ${restaurantId}`);
+  }
+
+  navigateToSignIn(): void {
+    // For demo purposes, show a notification
+    console.log('Navigating to Sign In page');
+    this.route.navigate(['/login']);
   }
 }

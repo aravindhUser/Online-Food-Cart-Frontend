@@ -13,6 +13,13 @@
     --border-radius: 12px;
 }
 
+.register-link {
+  display: block;       /* makes it a block element */
+  margin: 0 auto;       /* auto left/right margins center it */
+  text-align: center;   /* if it's text inside */
+}
+
+
 .login-container {
     min-height: 100vh;
     display: flex;

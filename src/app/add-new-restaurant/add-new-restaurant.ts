@@ -1,14 +1,16 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, Output, EventEmitter, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
 import { RestaurantService } from '../user-page';
-// import { RestaurantService } from '../services/restaurant.service'; // Adjust path as needed
+// import { RestaurantService } from '../services/restaurant.service'; // adjust path
 
 @Component({
   selector: 'app-add-new-restaurant',
- imports: [CommonModule, FormsModule],
+  standalone: true, // mark as standalone
+  imports: [CommonModule, FormsModule],
   templateUrl: './add-new-restaurant.html',
-  styleUrl: './add-new-restaurant.css',
+  styleUrls: ['./add-new-restaurant.css'], // plural
 })
 export class AddNewRestaurant {
   @Output() restaurantAdded = new EventEmitter<any>();
@@ -25,11 +27,14 @@ export class AddNewRestaurant {
   errorMessage: string = '';
   successMessage: string = '';
 
-  constructor(private restaurantService: RestaurantService) {}
+  constructor(
+    private restaurantService: RestaurantService, 
+    private cdr: ChangeDetectorRef,
+    private router: Router // inject Router, not RouterLink
+  ) {}
 
   // Submit the form
   onSubmit(): void {
-    // Validate form
     if (!this.validateForm()) {
       return;
     }
@@ -37,8 +42,9 @@ export class AddNewRestaurant {
     this.isLoading = true;
     this.errorMessage = '';
     this.successMessage = '';
+
     const ownerId: number = 1; // TODO: Get from authentication service
-    // Create restaurant object
+
     const newRestaurant = {
       name: this.name.trim(),
       city: this.city.trim(),
@@ -46,34 +52,28 @@ export class AddNewRestaurant {
       open: this.open
     };
 
-    // Call service to add restaurant
-    // For now, simulate the API call
-    // In real app: this.restaurantService.addRestaurant(newRestaurant).subscribe(...)
     this.restaurantService.addRestaurants(newRestaurant, ownerId).subscribe({
       next: (response) => {
         this.successMessage = 'Restaurant added successfully!';
         this.isLoading = false;
         console.log('Added restaurant response:', response);
+        this.cdr.markForCheck();
         this.simulateAddRestaurant(newRestaurant);
+        this.router.navigate(['/owner-page']); 
       },
-      error: (error) => {
+      error: () => {
         this.errorMessage = 'Failed to add restaurant.';
         this.isLoading = false;
       }
     });   
   }
 
-  // Simulate API call (replace with actual service call)
   private simulateAddRestaurant(restaurant: any): void {
     setTimeout(() => {
-      // Simulate successful response
       this.successMessage = 'Restaurant added successfully!';
       this.isLoading = false;
-      
-      // Emit the new restaurant to parent component
       this.restaurantAdded.emit(restaurant);
-      
-      // Reset form after successful submission
+
       setTimeout(() => {
         this.resetForm();
         this.successMessage = '';
@@ -81,28 +81,23 @@ export class AddNewRestaurant {
     }, 1000);
   }
 
-  // Validate form
   private validateForm(): boolean {
     if (!this.name.trim()) {
       this.errorMessage = 'Restaurant name is required';
       return false;
     }
-    
     if (!this.city.trim()) {
       this.errorMessage = 'City is required';
       return false;
     }
-    
     if (!this.area.trim()) {
       this.errorMessage = 'Area is required';
       return false;
     }
-    
     this.errorMessage = '';
     return true;
   }
 
-  // Reset form
   resetForm(): void {
     this.name = '';
     this.city = '';
@@ -111,7 +106,6 @@ export class AddNewRestaurant {
     this.errorMessage = '';
   }
 
-  // Close the modal
   onClose(): void {
     this.resetForm();
     this.closeModal.emit();
