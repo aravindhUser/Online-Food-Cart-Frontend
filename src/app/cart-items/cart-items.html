@@ -1,0 +1,128 @@
+
+<div class="cart">
+  <!-- Header -->
+  <div class="cart__header">
+    <h2>My Cart</h2>
+
+    <!-- Optional: If all items are from one restaurant, show it in header -->
+    <!--
+    <div class="cart__brand" *ngIf="items.length && getRestaurantNameForHeader() as rname">
+      <i class="fas fa-store"></i> <span>{{ rname }}</span>
+    </div>
+    -->
+
+    <div class="cart__actions">
+      <button
+        class="btn btn--clear"
+        (click)="clearCart()"
+        [disabled]="isLoading || items.length === 0"
+      >
+        Clear Cart
+      </button>
+    </div>
+  </div>
+
+  <!-- Status banners -->
+  <div *ngIf="isLoading" class="cart__loading">Loading...</div>
+  <div *ngIf="errorMsg" class="cart__error">{{ errorMsg }}</div>
+  <div *ngIf="infoMsg" class="cart__info">{{ infoMsg }}</div>
+
+  <!-- Empty state -->
+  <div *ngIf="!isLoading && items.length === 0" class="cart__empty">
+    Your cart is empty.
+  </div>
+
+  <!-- Items list -->
+  <div *ngIf="items.length > 0" class="cart__items">
+    <div
+      class="cart-item"
+      *ngFor="let item of items; trackBy: trackByItemId"
+      [class.cart-item--disabled]="!item.available"
+    >
+      <!-- Left: Item info -->
+      <div class="cart-item__info">
+        <div class="cart-item__name">{{ item.name }}</div>
+
+        <!-- Restaurant name -->
+        <div class="cart-item__restaurant" *ngIf="item.restaurantName as rname">
+          <i class="fas fa-store"></i>
+          <span>{{ rname }}</span>
+        </div>
+
+        <!-- <div class="cart-item__category">{{ item.category }}</div> -->
+
+        <div class="cart-item__availability" [class.unavailable]="!item.available">
+          <span
+            class="badge"
+            [class.badge--green]="item.available"
+            [class.badge--red]="!item.available"
+          >
+            {{ item.available ? 'Available' : 'Unavailable' }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Right: Price & totals -->
+      <div class="cart-item__pricing">
+        <div class="price-row">
+          <span class="label">Price of 1 item </span>
+          <span class="value">₹{{ item.price | number: '1.0-0' }}</span>
+        </div>
+        <div class="price-row">
+          <span class="label">Total price</span>
+          <span class="value total">₹{{ (item.price * item.quantity) | number: '1.0-0' }}</span>
+        </div>
+      </div>
+
+      <!-- Controls -->
+      <div class="cart-item__controls">
+        <div class="qty-controls">
+          <button class="qty-btn" (click)="decrement(item)" [disabled]="isLoading">−</button>
+          <span class="qty">{{ item.quantity }}</span>
+          <button class="qty-btn" (click)="increment(item)" [disabled]="isLoading || !item.available">+</button>
+        </div>
+
+        <button class="remove-btn" (click)="removeItem(item)" [disabled]="isLoading">
+          Remove
+        </button>
+      </div>
+
+      <!-- Optional meta -->
+      <div class="cart-item__meta" *ngIf="item.estimatedItemsDelivered != null">
+       Items can be deliverd : {{ item.estimatedItemsDelivered }}
+      </div>
+    </div>
+  </div>
+
+  <!-- Summary -->
+  <div class="cart__summary" *ngIf="items.length > 0">
+    <!-- Subtotal -->
+    <div class="summary__row">
+      <span>Subtotal</span>
+      <span>₹{{ subTotal | number: '1.0-0' }}</span>
+    </div>
+
+    <!-- NEW: Delivery charge line (₹100 if subtotal < 500, else Free) -->
+    <div class="summary__row">
+      <span>Delivery [Free delivery above 500]</span>
+      <span>
+        <ng-container *ngIf="subTotal < 500; else freeDelivery">
+          ₹{{ 100 | number: '1.0-0' }}
+        </ng-container>
+        <ng-template #freeDelivery>Free</ng-template>
+      </span>
+    </div>
+
+    <!-- Total (Grand Total) = Subtotal + (₹100 if subtotal < 500) -->
+    <div class="summary__row summary__total">
+      <span>Total</span>
+      <span>
+        ₹{{ (subTotal + (subTotal < 500 ? 100 : 0)) | number: '1.0-0' }}
+      </span>
+    </div>
+
+    <button class="btn btn--checkout" [disabled]="isLoading || items.length === 0">
+      Checkout
+    </button>
+  </div>
+</div>

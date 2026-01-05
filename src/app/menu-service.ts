@@ -8,7 +8,7 @@ export interface MenuItem {
   itemName: string;
   price: number;
   estimatedItemsDelivered: number;
-  available: boolean;
+  availaible: boolean;
   category: string;
   editing?: boolean;
   tempQuantity?: number;
@@ -59,6 +59,7 @@ export class MenuService {
 
   // Toggle item availability
   toggleItemAvailability(itemId: number, available: boolean): Observable<MenuItem> {
-    return this.http.patch<MenuItem>(`${this.baseUrl}/toggle/availaibility/item/${itemId}/${available?0:1}`, {});
+    console.log(available);
+    return this.http.patch<MenuItem>(`${this.baseUrl}/toggle/availaibility/item/${itemId}/${available}`, {});
   }
 }

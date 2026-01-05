@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuItem, MenuService } from '../menu-service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-owner-menu-page',
@@ -11,7 +12,7 @@ import { MenuItem, MenuService } from '../menu-service';
 })
 export class OwnerMenuPage implements OnInit {
 
-  restaurantId: number = 1; // Default value for testing
+  restaurantId: number = 0; // Default value for testing
 
   menuItems: MenuItem[] = [];
   filteredMenuItems: MenuItem[] = [];
@@ -21,7 +22,7 @@ export class OwnerMenuPage implements OnInit {
     itemName: '',
     price: 0,
     estimatedItemsDelivered: 10,
-    available: true,
+    availaible: true,
     category: 'Main Course'
   };
   
@@ -44,11 +45,19 @@ export class OwnerMenuPage implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
 
-  constructor(private menuService: MenuService, private cdr: ChangeDetectorRef) {}
+  constructor(private menuService: MenuService, private cdr: ChangeDetectorRef,private route:ActivatedRoute) {}
 
-  ngOnInit(): void {
+ 
+ ngOnInit(): void {
+    // ✅ Read restaurantId from query params and set it
+    const id = this.route.snapshot.queryParamMap.get('restaurantId');
+    if (id) {
+      this.restaurantId = +id;
+    }
+
     this.loadMenuItems();
   }
+
 
   // Load all menu items for this restaurant
   loadMenuItems(): void {
@@ -115,7 +124,7 @@ export class OwnerMenuPage implements OnInit {
       itemName: item.itemName,
       price: item.price,
       category: item.category,
-      available: item.available
+      available: item.availaible
     };
     
     this.menuService.updateMenuItem(item.itemId, updateData).subscribe({
@@ -191,8 +200,8 @@ export class OwnerMenuPage implements OnInit {
 
   // Toggle availability via PATCH
   toggleAvailability(item: MenuItem): void {
-    const newAvailability = !item.available;
-    
+  const newAvailability = !item.availaible;
+
     this.isLoading = true;
     
     this.menuService.toggleItemAvailability(item.itemId, newAvailability).subscribe({
@@ -291,7 +300,7 @@ export class OwnerMenuPage implements OnInit {
       itemName: '',
       price: 0,
       estimatedItemsDelivered: 10,
-      available: true,
+      availaible: true,
       category: 'Main Course'
     };
   }

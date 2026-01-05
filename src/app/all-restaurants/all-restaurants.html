@@ -1,3 +1,4 @@
+
 <!-- Header -->
 <header class="header">
   <div class="container header-content">
@@ -20,13 +21,18 @@
       <button class="sign-in-btn" (click)="navigateToSignIn()">
         <i class="fas fa-user"></i> Sign In
       </button>
+
+      <!-- SIMPLE CART BUTTON -->
+      <button class="cart-btn" (click)="navigateToCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Cart</span>
+      </button>
     </div>
   </div>
 </header>
 
 <!-- Main Content -->
 <div class="container main-content">
-  <!-- Filters Sidebar -->
   <aside class="filters-sidebar">
     <h3><i class="fas fa-filter"></i> Filters</h3>
     
@@ -89,7 +95,6 @@
     </div>
   </aside>
 
-  <!-- Restaurant Listings -->
   <main class="restaurant-listings">
     <div class="search-results-header">
       <h2 class="section-title">
@@ -105,13 +110,11 @@
       </div>
     </div>
     
-    <!-- Loading State -->
     <div class="loading-state" *ngIf="isLoading">
       <div class="spinner"></div>
       <p>Loading restaurants...</p>
     </div>
     
-    <!-- Error State -->
     <div class="error-state" *ngIf="errorMessage && !isLoading">
       <i class="fas fa-exclamation-triangle"></i>
       <p>{{ errorMessage }}</p>
@@ -120,7 +123,6 @@
       </button>
     </div>
     
-    <!-- Empty State -->
     <div 
       class="empty-state" 
       *ngIf="!isLoading && !errorMessage && filteredRestaurants.length === 0"
@@ -129,14 +131,12 @@
       <p>No restaurants found. Try a different search.</p>
     </div>
     
-    <!-- Restaurant Grid -->
     <div class="restaurant-grid" *ngIf="!isLoading && !errorMessage">
       <div 
         class="restaurant-card" 
         *ngFor="let restaurant of filteredRestaurants"
         [class.closed]="!restaurant.open"
       >
-        <!-- Closed Banner -->
         <div class="closed-banner" *ngIf="!restaurant.open">
           <i class="fas fa-door-closed"></i> Closed
         </div>

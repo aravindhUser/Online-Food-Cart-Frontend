@@ -55,7 +55,7 @@ export class AllRestaurants implements OnInit {
       restaurant.area.toLowerCase().includes(searchTerm)
     );
   }
-
+  
   applyFilter(category: string): void {
     this.currentFilter = category;
     
@@ -83,7 +83,11 @@ export class AllRestaurants implements OnInit {
 
   viewMenu(restaurantId: number): void {
     // For demo purposes, show a notification
+   // this.route.navigate(['cart/items']);
     console.log(`Navigating to menu for restaurant ID: ${restaurantId}`);
+  }
+  navigateToCart():void{
+    this.route.navigate(['cart/items']);
   }
 
   navigateToSignIn(): void {

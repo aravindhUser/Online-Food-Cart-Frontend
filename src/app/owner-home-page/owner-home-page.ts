@@ -201,12 +201,18 @@ export class OwnerHomePage implements OnInit , OnDestroy {
   
   viewRestaurant(restaurant: Restaurant): void {
     // Navigate to restaurant details page
-    this.router.navigate(['/owner/restaurant', restaurant.restaurantId]);
+    // this.router.navigate(['/owner/restaurant', restaurant.restaurantId]);
+    this.router.navigate(['/owner/restaurant']);
   }
   
   manageMenu(restaurant: Restaurant): void {
     // Navigate to menu management page
-    this.router.navigate(['/owner/menu', restaurant.restaurantId]);
+    // this.router.navigate(['/owner/menu', restaurant.restaurantId]);
+    this.router.navigate(['/owner/menu'],
+      {
+      queryParams: { restaurantId: restaurant.restaurantId },
+      }
+    );
   }
   
   viewProfile(): void {

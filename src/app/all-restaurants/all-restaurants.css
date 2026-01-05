@@ -248,6 +248,25 @@ body {
   gap: 5px;
 }
 
+/* Cart Button (match Sign In styling) */
+.cart-btn {
+  background: var(--primary);
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  display: inline-flex;            /* Ensures icon + text align nicely */
+  align-items: center;
+  gap: 8px;                        /* Space between cart icon and text */
+}
+
+.cart-btn:hover {
+  background: var(--primary-dark);
+}
+
 .restaurant-image-placeholder {
   height: 150px;
   background: linear-gradient(135deg, var(--primary), var(--secondary));
@@ -428,4 +447,5 @@ body {
   .restaurant-grid {
     grid-template-columns: 1fr;
   }
+  
 }

@@ -7,6 +7,8 @@ import { RegistrationPageUser } from './registration-page-user/registration-page
 import { OwnerHomePage } from './owner-home-page/owner-home-page';
 import { AddNewRestaurant } from './add-new-restaurant/add-new-restaurant';
 import { OwnerProfilePage } from './owner-profile-page/owner-profile-page';
+import { OwnerMenuPage } from './owner-menu-page/owner-menu-page';
+import { CartItemsComponent } from './cart-items/cart-items';
 
 export const routes: Routes = [
     { path: '', component: HomePage },
@@ -17,4 +19,7 @@ export const routes: Routes = [
     { path: 'owner-page',component: OwnerHomePage },
     {path:'owner/profile',component:OwnerProfilePage},
     { path: 'owner-page/addRestaurant',component: AddNewRestaurant },
+    { path: 'owner/menu', component: OwnerMenuPage },
+    {path:"cart/items",component:CartItemsComponent}
+
 ];
