@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef } from '@an
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuItem, MenuService } from '../menu-service';
+import { ActivatedRoute } from '@angular/router';
 
 @Component({
   selector: 'app-owner-menu-page',
@@ -55,6 +56,7 @@ export class OwnerMenuPage implements OnInit {
   ngOnInit(): void {
     this.loadMenuItems();
   }
+
 
   // Load all menu items for this restaurant
   loadMenuItems(): void {

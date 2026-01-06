@@ -9,7 +9,7 @@ export interface MenuItem {
   itemName: string;
   price: number;
   estimatedItemsDelivered: number;
-  available: boolean;
+  availaible: boolean;
   category: string;
   editing?: boolean;
   tempQuantity?: number;

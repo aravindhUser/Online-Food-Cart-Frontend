@@ -160,7 +160,7 @@
         <label class="availability-label">
           <input
             type="checkbox"
-            [(ngModel)]="newItem.available"
+            [(ngModel)]="newItem.availaible"
             [disabled]="isLoading"
           />
           <span class="toggle-switch">
@@ -310,14 +310,14 @@
           <label class="availability-toggle">
             <input
               type="checkbox"
-              [checked]="item.available"
+              [checked]="item.availaible"
               (change)="toggleAvailability(item)"
               [disabled]="isLoading"
               class="toggle-input"
             />
             <span class="toggle-slider"></span>
             <span class="toggle-text">
-              {{ item.available ? 'Available' : 'Unavailable' }}
+              {{ item.availaible ? 'Available' : 'Unavailable' }}
             </span>
           </label>
         </div>

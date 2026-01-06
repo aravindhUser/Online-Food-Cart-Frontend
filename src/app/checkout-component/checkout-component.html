@@ -1,0 +1,154 @@
+
+<div class="checkout">
+
+  <!-- Header -->
+  <div class="checkout__header">
+    <h2>Checkout</h2>
+  </div>
+
+  <!-- Status banners -->
+  <div *ngIf="isLoading" class="checkout__loading">Processing...</div>
+  <div *ngIf="errorMsg" class="checkout__error">{{ errorMsg }}</div>
+  <div *ngIf="infoMsg" class="checkout__info">{{ infoMsg }}</div>
+
+  <!-- BODY: Left (address + items) / Right (summary) -->
+  <div class="checkout__body" *ngIf="items.length > 0">
+
+    <!-- Address selection -->
+    <section class="address-list">
+      <div class="section-title">
+        <i class="fas fa-location-dot"></i>
+        <span>Select delivery address</span>
+      </div>
+
+      <div class="address-cards" *ngIf="addresses.length > 0; else noAddress">
+        <label
+          class="address-card"
+          *ngFor="let addr of addresses; let i = index"
+          [class.address-card--selected]="i === selectedIndex"
+          (click)="selectAddress(i)"
+        >
+          <input
+            type="radio"
+            name="selectedAddress"
+            [checked]="i === selectedIndex"
+            (change)="selectAddress(i)"
+          />
+          <div class="address-card__info">
+            <div class="address-card__line">
+              <strong>{{ addr.houseNo }}</strong>
+            </div>
+            <div class="address-card__line">{{ addr.streetName }}</div>
+            <div class="address-card__line">{{ addr.town }}, {{ addr.district }}</div>
+            <div class="address-card__line">{{ addr.state }} - {{ addr.pincode }}</div>
+          </div>
+        </label>
+      </div>
+
+      <ng-template #noAddress>
+        <div class="checkout__error">No saved addresses found for this user.</div>
+      </ng-template>
+    </section>
+
+    <!-- Items list -->
+    <section class="checkout-items" *ngIf="items.length > 0">
+      <div class="section-title">
+        <i class="fas fa-utensils"></i>
+        <span>Items in your order</span>
+      </div>
+
+      <div class="checkout-item" *ngFor="let item of items; trackBy: trackByItemId"
+           [class.checkout-item--disabled]="!item.available">
+        <div class="checkout-item__left">
+          <div class="checkout-item__name">{{ item.name }}</div>
+
+          <div class="checkout-item__restaurant" *ngIf="item.restaurantName as rname">
+            <i class="fas fa-store"></i>
+            <span>{{ rname }}</span>
+          </div>
+
+          <div class="checkout-item__availability" [class.unavailable]="!item.available">
+            <span class="badge" [class.badge--green]="item.available" [class.badge--red]="!item.available">
+              {{ item.available ? 'Available' : 'Unavailable' }}
+            </span>
+          </div>
+
+          <div class="checkout-item__meta" *ngIf="item.estimatedItemsDelivered != null">
+            Availible items : {{ item.estimatedItemsDelivered }}
+          </div>
+        </div>
+
+        <div class="checkout-item__right">
+          <div class="price-row">
+            <span class="label">Price</span>
+            <span class="value">₹{{ item.price | number: '1.0-0' }}</span>
+          </div>
+          <div class="price-row">
+            <span class="label">Qty</span>
+            <span class="value">{{ item.quantity }}</span>
+          </div>
+          <div class="price-row">
+            <span class="label">Total</span>
+            <span class="value total">₹{{ (item.price * item.quantity) | number: '1.0-0' }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Summary -->
+    <aside class="checkout-summary">
+      <div class="section-title">
+        <i class="fas fa-receipt"></i>
+        <span>Price Summary</span>
+      </div>
+
+      <div class="summary__row">
+        <span>Subtotal</span>
+        <span>₹{{ subTotal | number: '1.0-0' }}</span>
+      </div>
+
+      <div class="summary__row">
+        <span>Delivery</span>
+        <span>
+          <ng-container *ngIf="subTotal < 500; else freeDelivery">
+            ₹{{ 100 | number: '1.0-0' }}
+          </ng-container>
+          <ng-template #freeDelivery>Free</ng-template>
+        </span>
+      </div>
+
+      <div class="summary__row summary__total">
+        <span>Total</span>
+        <span>₹{{ grandTotal | number: '1.0-0' }}</span>
+      </div>
+    </aside>
+  </div>
+
+  <!-- Sticky bottom bar (Myntra-style) -->
+  <div class="sticky-bar" *ngIf="items.length > 0">
+    <div class="sticky-bar__details">
+
+      <!-- ✅ Use selectedAddress alias, not addresses[selectedIndex]?.… -->
+      <div class="sticky-bar__address" *ngIf="selectedAddress as addr">
+        <i class="fas fa-location-dot"></i>
+        <span>
+          Preferred Address : {{ addr.houseNo }}, {{ addr.streetName }}, {{ addr.town }} &  
+        </span>
+      </div>
+
+      <div class="sticky-bar__total">
+        <span>   Price : ₹{{ grandTotal | number: '1.0-0' }}</span>
+      </div>
+    </div>
+
+    <!-- ✅ Use hasUnavailableItems getter; no arrow functions in template -->
+    <button
+      class="btn btn--place-order"
+      (click)="placeOrder()"
+      [disabled]="isLoading || !selectedAddress || items.length === 0 || hasUnavailableItems"
+    >
+      Place Order
+    </button>
+  </div>
+
+</div>

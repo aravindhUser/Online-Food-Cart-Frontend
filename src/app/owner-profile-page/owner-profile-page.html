@@ -1,0 +1,78 @@
+
+<div class="profile-page">
+  <h1>Edit Owner Profile</h1>
+
+  <!-- Loading indicator -->
+  <div *ngIf="isLoading" class="loading">
+    <i class="fas fa-spinner fa-spin"></i> Loading profile...
+  </div>
+
+  <!-- Guard against undefined form -->
+  <form
+    *ngIf="!isLoading && form"
+    [formGroup]="form"
+    (ngSubmit)="save()"
+    novalidate
+  >
+    <div class="form-grid">
+      <!-- First Name -->
+      <div class="form-field">
+        <label for="firstName">First Name</label>
+        <input id="firstName" type="text" formControlName="firstName" />
+        <div class="error" *ngIf="form.get('firstName')?.touched && form.get('firstName')?.invalid">
+          <span *ngIf="form.get('firstName')?.errors?.['required']">First name is required.</span>
+          <span *ngIf="form.get('firstName')?.errors?.['maxlength']">Max 50 characters allowed.</span>
+        </div>
+      </div>
+
+      <!-- Last Name -->
+      <div class="form-field">
+        <label for="lastName">Last Name</label>
+        <input id="lastName" type="text" formControlName="lastName" />
+        <div class="error" *ngIf="form.get('lastName')?.touched && form.get('lastName')?.invalid">
+          <span *ngIf="form.get('lastName')?.errors?.['required']">Last name is required.</span>
+          <span *ngIf="form.get('lastName')?.errors?.['maxlength']">Max 50 characters allowed.</span>
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-field">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" />
+        <div class="error" *ngIf="form.get('email')?.touched && form.get('email')?.invalid">
+          <span *ngIf="form.get('email')?.errors?.['required']">Email is required.</span>
+          <span *ngIf="form.get('email')?.errors?.['email']">Enter a valid email address.</span>
+        </div>
+      </div>
+
+      <!-- Mobile Number -->
+      <div class="form-field">
+        <label for="mobileNumber">Mobile Number</label>
+        <input id="mobileNumber" type="tel" formControlName="mobileNumber" />
+        <div class="error" *ngIf="form.get('mobileNumber')?.touched && form.get('mobileNumber')?.invalid">
+          <span *ngIf="form.get('mobileNumber')?.errors?.['required']">Mobile number is required.</span>
+          <span *ngIf="form.get('mobileNumber')?.errors?.['pattern']">Enter a 10-digit number.</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button type="submit" class="save-btn" [disabled]="isSaving || form.invalid">
+        <i class="fas fa-save"></i>
+        {{ isSaving ? 'Saving...' : 'Save Changes' }}
+      </button>
+      <button type="button" class="cancel-btn" (click)="cancel()" [disabled]="isSaving">
+        <i class="fas fa-times"></i> Cancel
+      </button>
+    </div>
+
+    <!-- Feedback -->
+    <div class="feedback success" *ngIf="successMsg">
+      <i class="fas fa-check-circle"></i> {{ successMsg }}
+    </div>
+    <div class="feedback error" *ngIf="errorMsg">
+      <i class="fas fa-exclamation-circle"></i> {{ errorMsg }}
+    </div>
+  </form>
+</div>
+``

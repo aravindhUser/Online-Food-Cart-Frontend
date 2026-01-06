@@ -88,7 +88,7 @@ export class AllRestaurants implements OnInit {
       restaurant.area.toLowerCase().includes(searchTerm)
     );
   }
-
+  
   applyFilter(category: string): void {
     this.currentFilter = category;
     

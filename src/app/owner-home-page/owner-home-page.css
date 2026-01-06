@@ -633,6 +633,25 @@ input:checked + .status-slider:before {
     }
 }
 
+.profile-btn {
+    background: #ff6b6b;
+    color: white;
+    border: none;
+    padding: 8px 14px;
+    margin-right: 12px;
+    border-radius: 20px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: 0.2s;
+}
+
+.profile-btn:hover {
+    background: #ff6b6b;
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .header-content {
