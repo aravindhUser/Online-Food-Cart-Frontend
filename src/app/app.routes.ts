@@ -9,6 +9,7 @@ import { AddNewRestaurant } from './add-new-restaurant/add-new-restaurant';
 import { OwnerProfilePage } from './owner-profile-page/owner-profile-page';
 import { OwnerMenuPage } from './owner-menu-page/owner-menu-page';
 import { CartItemsComponent } from './cart-items/cart-items';
+import { CheckoutComponent } from './checkout-component/checkout-component';
 
 export const routes: Routes = [
     { path: '', component: HomePage },
@@ -20,6 +21,7 @@ export const routes: Routes = [
     {path:'owner/profile',component:OwnerProfilePage},
     { path: 'owner-page/addRestaurant',component: AddNewRestaurant },
     { path: 'owner/menu', component: OwnerMenuPage },
-    {path:"cart/items",component:CartItemsComponent}
+    {path:"cart/items",component:CartItemsComponent},
+    {path:"checkout",component:CheckoutComponent}
 
 ];

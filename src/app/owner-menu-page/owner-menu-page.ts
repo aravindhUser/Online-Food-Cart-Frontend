@@ -74,7 +74,7 @@ export class OwnerMenuPage implements OnInit {
         this.filteredMenuItems = [...this.menuItems];
         this.isLoading = false;
         this.cdr.detectChanges();
-        console.log('Menu items loaded:', data);
+        //console.log('Menu items loaded:', data);
       },
       error: (error) => {
         this.isLoading = false;

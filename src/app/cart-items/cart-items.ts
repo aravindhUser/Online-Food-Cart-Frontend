@@ -1,7 +1,13 @@
 
-// cart-items.component.ts
-import { Component, Input, OnInit, ChangeDetectionStrategy, ChangeDetectorRef } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+// src/app/cart-items/cart-items.component.ts
+import {
+  Component,
+  Input,
+  OnInit,
+  ChangeDetectionStrategy,
+  ChangeDetectorRef
+} from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router'; // <-- added Router
 import { finalize } from 'rxjs/operators';
 import { CartItem, CartItemDto, CartService, MessageResponse } from '../cart-service';
 import { CommonModule } from '@angular/common';
@@ -11,10 +17,10 @@ import { CommonModule } from '@angular/common';
   templateUrl: './cart-items.html',
   styleUrls: ['./cart-items.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports:[CommonModule]
+  imports: [CommonModule]
 })
 export class CartItemsComponent implements OnInit {
-  @Input() userId?: number=1;
+  @Input() userId?: number = 1;
 
   items: CartItem[] = [];
   isLoading = false;
@@ -31,7 +37,12 @@ export class CartItemsComponent implements OnInit {
     return this.subTotal; // add other fees if applicable
   }
 
-  constructor(private cartService: CartService, private route: ActivatedRoute,private cdr: ChangeDetectorRef) {}
+  constructor(
+    private cartService: CartService,
+    private route: ActivatedRoute,
+    private cdr: ChangeDetectorRef,
+    private router: Router // <-- injected Router
+  ) {}
 
   ngOnInit(): void {
     // If userId not passed via @Input, read from route param 'userId'
@@ -63,7 +74,7 @@ export class CartItemsComponent implements OnInit {
         error: err => {
           this.errorMsg = this.extractError(err, 'Failed to load cart items.');
           this.cdr.markForCheck();
-        },
+        }
       });
   }
 
@@ -114,7 +125,7 @@ export class CartItemsComponent implements OnInit {
         },
         error: err => {
           this.errorMsg = this.extractError(err, 'Failed to update quantity.');
-        },
+        }
       });
   }
 
@@ -135,7 +146,7 @@ export class CartItemsComponent implements OnInit {
         },
         error: err => {
           this.errorMsg = this.extractError(err, 'Failed to remove item.');
-        },
+        }
       });
   }
 
@@ -153,11 +164,10 @@ export class CartItemsComponent implements OnInit {
           this.items = [];
           this.infoMsg = 'Cart cleared.';
           this.cdr.markForCheck();
-          
         },
         error: err => {
           this.errorMsg = this.extractError(err, 'Failed to clear cart.');
-        },
+        }
       });
   }
 
@@ -171,7 +181,7 @@ export class CartItemsComponent implements OnInit {
       userId: this.userId,
       itemId,
       quantity,
-      addedAt: new Date().toISOString(),
+      addedAt: new Date().toISOString()
     };
 
     this.cartService
@@ -185,12 +195,50 @@ export class CartItemsComponent implements OnInit {
         },
         error: err => {
           this.errorMsg = this.extractError(err, 'Failed to add item.');
-        },
+        }
       });
   }
 
   trackByItemId(_index: number, item: CartItem): number {
     return item.itemId;
+  }
+
+  /** 
+   * Navigate to Checkout with query params:
+   *  - userId
+   *  - items: Base64-encoded JSON payload (minimal fields)
+   */
+  goToCheckout(): void {
+    if (this.userId == null) {
+      this.errorMsg = 'User ID is missing.';
+      return;
+    }
+    if (this.items.length === 0) {
+      this.errorMsg = 'Your cart is empty.';
+      return;
+    }
+
+    // Keep payload minimal to avoid very long URLs
+    const payload = this.items.map(i => ({
+      itemId: i.itemId,
+      name: i.name,
+      price: i.price,
+      quantity: i.quantity,
+      available: i.available,
+      restaurantName: (i as any).restaurantName,
+      estimatedItemsDelivered: (i as any).estimatedItemsDelivered ?? null
+    }));
+
+    const json = JSON.stringify(payload);
+    // Base64 encode (Unicode-safe)
+    const b64 = btoa(unescape(encodeURIComponent(json)));
+
+    this.router.navigate(['/checkout'], {
+      queryParams: {
+        userId: this.userId,
+        items: b64
+      }
+    });
   }
 
   private extractError(err: any, fallback: string): string {
@@ -200,4 +248,3 @@ export class CartItemsComponent implements OnInit {
     return fallback;
   }
 }
-

@@ -121,8 +121,14 @@
       </span>
     </div>
 
-    <button class="btn btn--checkout" [disabled]="isLoading || items.length === 0">
-      Checkout
-    </button>
+   
+<button
+  class="btn btn--checkout"
+  [disabled]="isLoading || items.length === 0"
+  (click)="goToCheckout()"
+>
+  Checkout
+</button>
+
   </div>
 </div>
