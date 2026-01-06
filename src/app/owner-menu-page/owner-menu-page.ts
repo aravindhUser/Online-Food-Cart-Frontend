@@ -1,18 +1,18 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MenuItem, MenuService } from '../menu-service';
 
 @Component({
   selector: 'app-owner-menu-page',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './owner-menu-page.html',
-  styleUrl: './owner-menu-page.css',
+  styleUrls: ['./owner-menu-page.css']
 })
 export class OwnerMenuPage implements OnInit {
-
-  restaurantId: number = 1; // Default value for testing
-
+  restaurantId: number = 1; // Replace with actual restaurant ID from auth service
+  
   menuItems: MenuItem[] = [];
   filteredMenuItems: MenuItem[] = [];
   
@@ -22,21 +22,21 @@ export class OwnerMenuPage implements OnInit {
     price: 0,
     estimatedItemsDelivered: 10,
     available: true,
-    category: 'Main Course'
+    category: ''
   };
   
   searchTerm: string = '';
   
   categories: string[] = [
-    'Appetizer',
     'Main Course',
+    'Appetizer',
     'Dessert',
     'Beverage',
     'Side Dish',
-    'Specialty',
     'Breakfast',
     'Lunch',
-    'Dinner'
+    'Dinner',
+    'Specialty'
   ];
   
   isLoading: boolean = false;
@@ -44,7 +44,13 @@ export class OwnerMenuPage implements OnInit {
   errorMessage: string = '';
   successMessage: string = '';
 
-  constructor(private menuService: MenuService, private cdr: ChangeDetectorRef) {}
+  @ViewChild('itemNameInput') itemNameInput?: ElementRef;
+  @ViewChild('quantityInput') quantityInput?: ElementRef;
+
+  constructor(
+    private menuService: MenuService, 
+    private cdr: ChangeDetectorRef
+  ) {}
 
   ngOnInit(): void {
     this.loadMenuItems();
@@ -60,19 +66,37 @@ export class OwnerMenuPage implements OnInit {
         this.menuItems = data.map(item => ({
           ...item,
           editing: false,
-          tempQuantity: item.estimatedItemsDelivered
+          tempQuantity: item.estimatedItemsDelivered,
+          deleting: false
         }));
         this.filteredMenuItems = [...this.menuItems];
         this.isLoading = false;
-        this.cdr.detectChanges();
-        console.log('Menu items loaded:', data);
+        console.log('Menu items loaded:', this.menuItems.length, 'items');
       },
       error: (error) => {
         this.isLoading = false;
         console.error('Error loading menu items:', error);
-        this.handleError('Failed to load menu items. Please try again.', error);
+        this.handleError('Failed to load menu items. Please refresh the page.', error);
       }
     });
+  }
+
+  // Open add item form
+  openAddItemForm(): void {
+    this.isAddingItem = true;
+    this.resetNewItemForm();
+    // Focus on item name input after view renders
+    setTimeout(() => {
+      if (this.itemNameInput) {
+        this.itemNameInput.nativeElement.focus();
+      }
+    }, 100);
+  }
+
+  // Close add item form
+  closeAddItemForm(): void {
+    this.isAddingItem = false;
+    this.errorMessage = '';
   }
 
   // Add new menu item
@@ -85,21 +109,29 @@ export class OwnerMenuPage implements OnInit {
     this.errorMessage = '';
     
     // Ensure restaurantId is set
-    // this.newItem.restaurantId = this.restaurantId;
+    this.newItem.restaurantId = this.restaurantId;
 
-    this.menuService.addMenuItem(this.newItem,this.restaurantId).subscribe({
+    this.menuService.addMenuItem(this.newItem, this.restaurantId).subscribe({
       next: (createdItem) => {
-        this.menuItems.unshift(createdItem);
+        // Add editing properties to the new item
+        const newItemWithProps = {
+          ...createdItem,
+          editing: false,
+          tempQuantity: createdItem.estimatedItemsDelivered,
+          deleting: false
+        };
+        
+        this.menuItems.unshift(newItemWithProps);
         this.filteredMenuItems = [...this.menuItems];
-        console.log('Menu item added:', createdItem);
+        
+        console.log('Menu item added successfully:', createdItem);
+        
         this.isAddingItem = false;
         this.isLoading = false;
-
         this.resetNewItemForm();
-       
+        
         this.showSuccess('Menu item added successfully!');
-        this.loadMenuItems();
-        // this.cdr.detectChanges();
+        this.cdr.detectChanges();
       },
       error: (error) => {
         this.handleError('Failed to add menu item. Please try again.', error);
@@ -107,54 +139,27 @@ export class OwnerMenuPage implements OnInit {
     });
   }
 
-  // Update menu item
-  updateMenuItem(item: MenuItem): void {
-    this.isLoading = true;
-    
-    const updateData = {
-      itemName: item.itemName,
-      price: item.price,
-      category: item.category,
-      available: item.available
-    };
-    
-    this.menuService.updateMenuItem(item.itemId, updateData).subscribe({
-      next: (updatedItem) => {
-        const index = this.menuItems.findIndex(m => m.itemId === item.itemId);
-        if (index !== -1) {
-          this.menuItems[index] = { ...this.menuItems[index], ...updatedItem };
-          this.filteredMenuItems = [...this.menuItems];
-        }
-        
-        this.isLoading = false;
-        this.showSuccess('Menu item updated successfully!');
-      },
-      error: (error) => {
-        this.handleError('Failed to update menu item. Please try again.', error);
-      }
-    });
-  }
-
   // Delete menu item
-  deleteMenuItem(itemId: number): void {
-    if (!confirm('Are you sure you want to delete this menu item?')) {
+  deleteMenuItem(item: MenuItem): void {
+    if (!confirm(`Are you sure you want to delete "${item.itemName}"? This action cannot be undone.`)) {
       return;
     }
-    console.log("Type of itemId:", typeof itemId);
-    this.isLoading = true;
-    console.log("Deleting menu item with ID:", itemId);
-
-    this.menuService.deleteMenuItem(itemId).subscribe({
+    
+    item.deleting = true;
+    this.errorMessage = '';
+    
+    this.menuService.deleteMenuItem(item.itemId).subscribe({
       next: () => {
-        this.menuItems = this.menuItems.filter(item => item.itemId !== itemId );
-        this.filteredMenuItems = [...this.menuItems];
-        this.isLoading = false;
-        this.loadMenuItems();
-        this.cdr.markForCheck();
-        this.showSuccess('Menu item deleted successfully!');
-
+        // Remove item after animation completes
+        setTimeout(() => {
+          this.menuItems = this.menuItems.filter(i => i.itemId !== item.itemId);
+          this.filteredMenuItems = [...this.menuItems];
+          this.showSuccess('Menu item deleted successfully!');
+          this.cdr.detectChanges();
+        }, 400);
       },
       error: (error) => {
+        item.deleting = false;
         this.handleError('Failed to delete menu item. Please try again.', error);
       }
     });
@@ -163,25 +168,33 @@ export class OwnerMenuPage implements OnInit {
   // Update quantity via PATCH
   updateItemQuantity(item: MenuItem): void {
     if (!item.tempQuantity || item.tempQuantity < 0) {
-      this.errorMessage = 'Please enter a valid quantity';
+      this.errorMessage = 'Please enter a valid quantity (0 or more)';
+      return;
+    }
+
+    if (item.tempQuantity === item.estimatedItemsDelivered) {
+      item.editing = false;
       return;
     }
 
     this.isLoading = true;
+    this.errorMessage = '';
     
     this.menuService.updateItemQuantity(item.itemId, item.tempQuantity).subscribe({
       next: (updatedItem) => {
         const index = this.menuItems.findIndex(m => m.itemId === item.itemId);
         if (index !== -1) {
-          this.menuItems[index] = updatedItem;
-          this.menuItems[index].editing = false;
+          this.menuItems[index] = {
+            ...this.menuItems[index],
+            ...updatedItem,
+            editing: false,
+            tempQuantity: updatedItem.estimatedItemsDelivered
+          };
           this.filteredMenuItems = [...this.menuItems];
         }
         
         this.isLoading = false;
-        this.cdr.markForCheck();
-        this.loadMenuItems();
-        this.showSuccess('Quantity updated successfully!');
+        this.showSuccess('Stock quantity updated successfully!');
       },
       error: (error) => {
         this.handleError('Failed to update quantity. Please try again.', error);
@@ -189,27 +202,38 @@ export class OwnerMenuPage implements OnInit {
     });
   }
 
-  // Toggle availability via PATCH
+  // Toggle availability via PATCH - UPDATED for immediate feedback
   toggleAvailability(item: MenuItem): void {
+    // Store the current state in case we need to revert
+    const originalAvailability = item.available;
     const newAvailability = !item.available;
     
-    this.isLoading = true;
+    // IMMEDIATE VISUAL UPDATE - Update UI first
+    item.available = newAvailability;
+    this.cdr.detectChanges(); // Force immediate UI update
+    
+    this.errorMessage = '';
     
     this.menuService.toggleItemAvailability(item.itemId, newAvailability).subscribe({
       next: (updatedItem) => {
+        // Update the item with the response from server
         const index = this.menuItems.findIndex(m => m.itemId === item.itemId);
         if (index !== -1) {
-          this.menuItems[index] = updatedItem;
+          this.menuItems[index] = {
+            ...this.menuItems[index],
+            ...updatedItem
+          };
           this.filteredMenuItems = [...this.menuItems];
         }
         
-        this.isLoading = false;
-        this.cdr.markForCheck();
-        this.loadMenuItems();
-        this.showSuccess('Availability updated!');
+        this.showSuccess(`Item marked as ${newAvailability ? 'Available' : 'Unavailable'}!`);
+        this.cdr.detectChanges();
       },
       error: (error) => {
+        // Revert the change if the API call fails
+        item.available = originalAvailability;
         this.handleError('Failed to update availability. Please try again.', error);
+        this.cdr.detectChanges();
       }
     });
   }
@@ -225,6 +249,14 @@ export class OwnerMenuPage implements OnInit {
     
     item.editing = true;
     item.tempQuantity = item.estimatedItemsDelivered;
+    
+    // Focus on input after view updates
+    setTimeout(() => {
+      if (this.quantityInput) {
+        this.quantityInput.nativeElement.focus();
+        this.quantityInput.nativeElement.select();
+      }
+    }, 50);
   }
 
   // Cancel editing
@@ -233,7 +265,7 @@ export class OwnerMenuPage implements OnInit {
     item.tempQuantity = item.estimatedItemsDelivered;
   }
 
-  // Search menu items via backend
+  // Search menu items
   searchMenuItems(): void {
     if (!this.searchTerm.trim()) {
       this.loadMenuItems();
@@ -241,15 +273,21 @@ export class OwnerMenuPage implements OnInit {
     }
 
     this.isLoading = true;
+    this.errorMessage = '';
     
     this.menuService.searchMenuItems(this.restaurantId, this.searchTerm.trim()).subscribe({
       next: (data) => {
         this.filteredMenuItems = data.map(item => ({
           ...item,
           editing: false,
-          tempQuantity: item.estimatedItemsDelivered
+          tempQuantity: item.estimatedItemsDelivered,
+          deleting: false
         }));
         this.isLoading = false;
+        
+        if (this.filteredMenuItems.length === 0) {
+          this.showInfo(`No items found for "${this.searchTerm}"`);
+        }
       },
       error: (error) => {
         this.handleError('Failed to search menu items. Please try again.', error);
@@ -271,12 +309,17 @@ export class OwnerMenuPage implements OnInit {
     }
     
     if (!this.newItem.price || this.newItem.price <= 0) {
-      this.errorMessage = 'Valid price is required';
+      this.errorMessage = 'Please enter a valid price (greater than 0)';
+      return false;
+    }
+    
+    if (!this.newItem.category) {
+      this.errorMessage = 'Please select a category';
       return false;
     }
     
     if (!this.newItem.estimatedItemsDelivered || this.newItem.estimatedItemsDelivered < 0) {
-      this.errorMessage = 'Valid quantity is required';
+      this.errorMessage = 'Please enter a valid initial stock quantity';
       return false;
     }
     
@@ -292,7 +335,7 @@ export class OwnerMenuPage implements OnInit {
       price: 0,
       estimatedItemsDelivered: 10,
       available: true,
-      category: 'Main Course'
+      category: ''
     };
   }
 
@@ -301,6 +344,16 @@ export class OwnerMenuPage implements OnInit {
     this.successMessage = message;
     setTimeout(() => {
       this.successMessage = '';
+    }, 4000);
+  }
+
+  // Show info message
+  private showInfo(message: string): void {
+    this.errorMessage = message;
+    setTimeout(() => {
+      if (this.errorMessage === message) {
+        this.errorMessage = '';
+      }
     }, 3000);
   }
 
@@ -308,6 +361,11 @@ export class OwnerMenuPage implements OnInit {
   private handleError(message: string, error: any): void {
     this.errorMessage = message;
     this.isLoading = false;
-    console.error('Error:', error);
+    console.error('Menu management error:', error);
+    
+    // Auto-clear error after 5 seconds
+    setTimeout(() => {
+      this.errorMessage = '';
+    }, 5000);
   }
 }

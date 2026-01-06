@@ -36,7 +36,24 @@ export interface RegistrationResponse {
 export class RegistrationService {
   // private apiUrl = environment.apiUrl + '/api/auth';
   private apiUrl = 'http://localhost:8080/auth';
+  
 
+
+  isLoggedIn(): boolean {
+    const token = localStorage.getItem('jwtToken');
+    return !!token;
+  }
+
+  getCurrentUser(): { firstName: string; lastName: string } | null {
+    const firstName: string = "Aravindh";
+    const lastName: string = "R";
+    return { firstName, lastName };
+  }
+
+  logout(): void {
+    localStorage.removeItem('jwtToken');
+    localStorage.removeItem('jwtTokenExpiration');
+  }
   constructor(private http: HttpClient) {}
 
   registerOwner(data: Omit<RegistrationRequest, 'role'>): Observable<RegistrationResponse> {
@@ -77,6 +94,6 @@ export class RegistrationService {
 
   loginUser(data: LoginRequest): Observable<LoginResponse> {
     console.log('Login data sent to server:', data);
-    return this.http.post<LoginResponse>(`http://localhost:8080/auth/user-login`, data)
-  } 
+    return this.http.post<LoginResponse>(`http://localhost:8080/auth/user-login`, data);
+  }
 }

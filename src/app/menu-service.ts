@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { HttpClient, HttpParams, HttpHeaders } from '@angular/common/http';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 export interface MenuItem {
   itemId: number;
@@ -12,6 +13,7 @@ export interface MenuItem {
   category: string;
   editing?: boolean;
   tempQuantity?: number;
+  deleting?: boolean;
 }
 
 @Injectable({
@@ -20,11 +22,21 @@ export interface MenuItem {
 export class MenuService {
   private baseUrl = 'http://localhost:8083/menu';
 
+  private httpOptions = {
+    headers: new HttpHeaders({
+      'Content-Type': 'application/json'
+    })
+  };
+
   constructor(private http: HttpClient) { }
 
   // Get all menu items for a restaurant
   getMenuItemsByRestaurant(restaurantId: number): Observable<MenuItem[]> {
-    return this.http.get<MenuItem[]>(`${this.baseUrl}/get-items/restaurant/${restaurantId}`);
+    const url = `${this.baseUrl}/get-items/restaurant/${restaurantId}`;
+    return this.http.get<MenuItem[]>(url)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
   // Search menu items
@@ -33,32 +45,80 @@ export class MenuService {
       .set('restaurantId', restaurantId.toString())
       .set('searchTerm', searchTerm);
     
-    return this.http.get<MenuItem[]>(`${this.baseUrl}/search`, { params });
+    return this.http.get<MenuItem[]>(`${this.baseUrl}/search`, { params })
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
   // Add new menu item
-  addMenuItem(menuItem: Partial<MenuItem>, restaurantId: number): Observable<any> {
-    console.log('Adding menu item:', menuItem);
-    return this.http.post<any>(`${this.baseUrl}/add-item/${restaurantId}`, menuItem);
+  addMenuItem(menuItem: Partial<MenuItem>, restaurantId: number): Observable<MenuItem> {
+    const url = `${this.baseUrl}/add-item/${restaurantId}`;
+    console.log('Adding menu item to:', url, menuItem);
+    
+    return this.http.post<MenuItem>(url, menuItem, this.httpOptions)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
   // Update menu item
   updateMenuItem(menuId: number, menuItem: Partial<MenuItem>): Observable<MenuItem> {
-    return this.http.put<MenuItem>(`${this.baseUrl}/update/${menuId}`, menuItem);
+    const url = `${this.baseUrl}/update/${menuId}`;
+    return this.http.put<MenuItem>(url, menuItem, this.httpOptions)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
-  // Delete menu item
-  deleteMenuItem(menuId: number): Observable<any> {
-    return this.http.delete(`${this.baseUrl}/remove/item/${menuId}`);
+  // Delete menu item - CORRECTED ENDPOINT
+  deleteMenuItem(itemId: number): Observable<any> {
+    const url = `${this.baseUrl}/remove/item/${itemId}`;
+    console.log('Deleting item from:', url);
+    
+    return this.http.delete(url)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
-  // Update item quantity
+  // Update item quantity - CORRECTED ENDPOINT
   updateItemQuantity(itemId: number, estimatedItemsDelivered: number): Observable<MenuItem> {
-    return this.http.put<MenuItem>(`${this.baseUrl}/update/no-of-items-delivered/${itemId}/${estimatedItemsDelivered}`, {});
+    const url = `${this.baseUrl}/update/no-of-items-delivered/${itemId}/${estimatedItemsDelivered}`;
+    console.log('Updating quantity at:', url);
+    
+    return this.http.put<MenuItem>(url, {}, this.httpOptions)
+      .pipe(
+        catchError(this.handleError)
+      );
   }
 
-  // Toggle item availability
+  // Toggle item availability - CORRECTED ENDPOINT
   toggleItemAvailability(itemId: number, available: boolean): Observable<MenuItem> {
-    return this.http.patch<MenuItem>(`${this.baseUrl}/toggle/availaibility/item/${itemId}/${available?0:1}`, {});
+    // Convert boolean to 1/0 as per your backend
+    const availabilityValue = available ? 1 : 0;
+    const url = `${this.baseUrl}/toggle/availaibility/item/${itemId}/${availabilityValue}`;
+    console.log('Toggling availability at:', url);
+    
+    return this.http.patch<MenuItem>(url, {}, this.httpOptions)
+      .pipe(
+        catchError(this.handleError)
+      );
+  }
+
+  // Error handling
+  private handleError(error: any) {
+    console.error('MenuService error:', error);
+    
+    let errorMessage = 'An error occurred';
+    if (error.error instanceof ErrorEvent) {
+      // Client-side error
+      errorMessage = error.error.message;
+    } else {
+      // Server-side error
+      errorMessage = `Error Code: ${error.status}\nMessage: ${error.message}`;
+    }
+    
+    return throwError(() => new Error(errorMessage));
   }
 }

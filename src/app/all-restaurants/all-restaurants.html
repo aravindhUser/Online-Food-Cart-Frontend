@@ -17,12 +17,130 @@
     </div>
     
     <div class="user-actions">
-      <button class="sign-in-btn" (click)="navigateToSignIn()">
-        <i class="fas fa-user"></i> Sign In
-      </button>
+      <!-- Cart Icon (only when logged in) -->
+      <div 
+        class="cart-icon" 
+        *ngIf="isLoggedIn && cartItemCount > 0"
+        [title]="cartItemCount + ' items in cart'"
+      >
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-count">{{ cartItemCount }}</span>
+      </div>
+      
+      <!-- User Profile (when logged in) -->
+      <div class="profile-container" *ngIf="isLoggedIn; else signInButton">
+        <div class="profile-info" (click)="toggleProfileDropdown()">
+          <div class="user-avatar">
+            {{ userFirstName.charAt(0) }}{{ userLastName.charAt(0) }}
+          </div>
+          <span class="user-name">{{ userFirstName }} {{ userLastName }}</span>
+          <i class="fas fa-chevron-down dropdown-arrow"></i>
+        </div>
+        
+        <!-- Dropdown Menu -->
+        <div class="profile-dropdown" *ngIf="showProfileDropdown">
+          <div class="dropdown-item" (click)="navigateToMyOrders()">
+            <i class="fas fa-clipboard-list"></i> My Orders
+          </div>
+          <div class="dropdown-divider"></div>
+          <div class="dropdown-item logout" (click)="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </div>
+        </div>
+      </div>
+      
+      <!-- Sign In Button (when not logged in) -->
+      <ng-template #signInButton>
+        <button class="sign-in-btn" (click)="navigateToSignIn()">
+          <i class="fas fa-user"></i> Sign In
+        </button>
+      </ng-template>
     </div>
   </div>
 </header>
+
+<!-- Menu Dialog Overlay -->
+<div class="menu-dialog-overlay" *ngIf="showMenuDialog" (click)="closeMenuDialog()"></div>
+
+<!-- Menu Dialog -->
+<div class="menu-dialog" *ngIf="showMenuDialog">
+  <div class="menu-dialog-content" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="menu-header">
+      <h2 class="menu-title">
+        <i class="fas fa-utensils"></i>
+        {{ selectedRestaurantName }}
+      </h2>
+      <button class="close-btn" (click)="closeMenuDialog()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    
+    <!-- Menu Content -->
+    <div class="menu-content">
+      <!-- Loading State -->
+      <div class="menu-loading" *ngIf="isMenuLoading">
+        <div class="spinner"></div>
+        <p>Loading menu...</p>
+      </div>
+      
+      <!-- Error State -->
+      <div class="menu-error" *ngIf="menuError && !isMenuLoading">
+        <i class="fas fa-exclamation-triangle"></i>
+        <p>{{ menuError }}</p>
+      </div>
+      
+      <!-- Empty State -->
+      <div class="menu-empty" *ngIf="!isMenuLoading && !menuError && menuItems.length === 0">
+        <i class="fas fa-utensils"></i>
+        <p>No menu items available</p>
+      </div>
+      
+      <!-- Menu Items -->
+      <div class="menu-items" *ngIf="!isMenuLoading && !menuError && menuItems.length > 0">
+        <div class="category-section" *ngFor="let category of getCategories()">
+          <h3 class="category-title">{{ category }}</h3>
+          <div class="items-grid">
+            <div class="menu-item-card" *ngFor="let item of getItemsByCategory(category)">
+              <div class="item-info">
+                <h4 class="item-name">{{ item.itemName }}</h4>
+                <p class="item-price">${{ item.price.toFixed(2) }}</p>
+              </div>
+              <div class="item-actions">
+                <div class="quantity-control" *ngIf="getItemQuantity(item.itemId) > 0; else addButton">
+                  <button class="quantity-btn" (click)="decrementQuantity(item.itemId)">
+                    <i class="fas fa-minus"></i>
+                  </button>
+                  <span class="quantity">{{ getItemQuantity(item.itemId) }}</span>
+                  <button class="quantity-btn" (click)="incrementQuantity(item.itemId)">
+                    <i class="fas fa-plus"></i>
+                  </button>
+                </div>
+                <ng-template #addButton>
+                  <button class="add-btn" (click)="addToCart(item)">
+                    <i class="fas fa-plus"></i> Add
+                  </button>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Cart Summary (only when items in cart) -->
+    <div class="cart-summary" *ngIf="cartItemCount > 0">
+      <div class="cart-total">
+        <span class="total-label">Total:</span>
+        <span class="total-amount">${{ cartTotal.toFixed(2) }}</span>
+      </div>
+      <button class="place-order-btn" (click)="placeOrder()">
+        <i class="fas fa-shopping-bag"></i>
+        Place Order ({{ cartItemCount }} items)
+      </button>
+    </div>
+  </div>
+</div>
 
 <!-- Main Content -->
 <div class="container main-content">
@@ -31,48 +149,11 @@
     <h3><i class="fas fa-filter"></i> Filters</h3>
     
     <div class="filter-group">
-      <div class="filter-title">Categories</div>
-      <div class="filter-options">
-        <div 
-          class="filter-option" 
-          [class.active]="currentFilter === 'all'"
-          (click)="applyFilter('all')"
-        >
-          <i class="fas fa-utensils"></i>
-          <span>All Restaurants</span>
-        </div>
-        <div 
-          class="filter-option" 
-          [class.active]="currentFilter === 'new york'"
-          (click)="applyFilter('new york')"
-        >
-          <i class="fas fa-city"></i>
-          <span>New York</span>
-        </div>
-        <div 
-          class="filter-option" 
-          [class.active]="currentFilter === 'chicago'"
-          (click)="applyFilter('chicago')"
-        >
-          <i class="fas fa-building"></i>
-          <span>Chicago</span>
-        </div>
-        <div 
-          class="filter-option" 
-          [class.active]="currentFilter === 'los angeles'"
-          (click)="applyFilter('los angeles')"
-        >
-          <i class="fas fa-sun"></i>
-          <span>Los Angeles</span>
-        </div>
-      </div>
-    </div>
-    
-    <div class="filter-group">
       <div class="filter-title">Status</div>
       <div class="filter-options">
         <div 
           class="filter-option" 
+          [class.active]="currentFilter === 'open'"
           (click)="applyFilter('open')"
         >
           <i class="fas fa-door-open"></i>
@@ -80,6 +161,7 @@
         </div>
         <div 
           class="filter-option" 
+          [class.active]="currentFilter === 'closed'"
           (click)="applyFilter('closed')"
         >
           <i class="fas fa-door-closed"></i>
@@ -165,7 +247,7 @@
             <button 
               class="view-menu-btn" 
               [disabled]="!restaurant.open"
-              (click)="viewMenu(restaurant.restaurantId)"
+              (click)="viewMenu(restaurant.restaurantId, restaurant.name)"
             >
               <i class="fas fa-utensils"></i> View Menu
             </button>
